@@ -1,0 +1,77 @@
+spring:
+  application:
+    name: cms-permits
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5436/cms_permit_db}
+    username: ${SPRING_DATASOURCE_USERNAME:chemical}
+    password: ${SPRING_DATASOURCE_PASSWORD:chemical}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: cms-permits
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI:http://localhost:8080/realms/chemical-platform}
+
+server:
+  port: ${SERVER_PORT:8080}
+
+eureka:
+  client:
+    enabled: ${EUREKA_CLIENT_ENABLED:true}
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+
+cms:
+  openapi:
+    gateway-url: ${CMS_OPENAPI_GATEWAY_URL:http://localhost:8088}
+  permits:
+    outbox:
+      poll-interval-ms: 5000
+      batch-size: 50
+    permit-validity-years: 1
+    services:
+      companies-url: ${CMS_SERVICES_COMPANIES_URL:http://localhost:8094}
+      chemical-management-url: ${CMS_SERVICES_CHEMICAL_MANAGEMENT_URL:http://localhost:8095}
+  kafka:
+    topics:
+      permit-approved: cms.permit.approved.v1
+      license-granted: cms.license.granted.v1
+      license-revoked: cms.license.revoked.v1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    enabled: false
+
+logging:
+  level:
+    com.nuvemite.cms.permits: INFO

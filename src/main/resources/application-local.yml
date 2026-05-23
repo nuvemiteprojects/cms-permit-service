@@ -1,0 +1,20 @@
+server:
+  port: 8096
+
+eureka:
+  client:
+    enabled: false
+
+spring:
+  datasource:
+    # Native Postgres (same as cms-licenses). Use 5436 only when connecting to docker postgres-permits.
+    url: jdbc:postgresql://localhost:5432/cms_permit_db
+    username: chemical
+    password: chemical
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9090/realms/chemical-management
+  kafka:
+    bootstrap-servers: localhost:9092
